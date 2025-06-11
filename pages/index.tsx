@@ -60,36 +60,90 @@ const Home: NextPage = () => {
     return { level: 'Prête à louer rapidement', color: 'text-green-600', emoji: '🟢' }
   }
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true)
-    setSubmitSuccess(false)
+  const generatePDF = () => {
+    const diagnosis = getDiagnosticLevel()
+    const date = new Date().toLocaleDateString('fr-FR')
     
-    const submissionData = {
-      ...formData,
-      totalScore,
-      diagnostic: getDiagnosticLevel().level,
-      timestamp: new Date().toISOString()
+    // Créer le contenu HTML pour le PDF
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: auto; }
+          h1 { color: #1e40af; text-align: center; }
+          h2 { color: #1e40af; margin-top: 30px; }
+          .score { font-size: 24px; font-weight: bold; text-align: center; padding: 20px;
+                   background: #f0f9ff; border-radius: 10px; margin: 20px 0; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+          .info-item { padding: 10px; background: #f8fafc; border-radius: 5px; }
+          .criteria { margin: 10px 0; padding: 10px; background: #f8fafc; border-radius: 5px; }
+          .recommendation { padding: 20px; margin: 20px 0; background: #f0fdf4; border-radius: 10px; }
+          .footer { text-align: center; margin-top: 40px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <h1>📘 Diagnostic Express LocService</h1>
+        <p style="text-align: center; color: #666;">Généré le ${date}</p>
+        
+        <div class="score">
+          Score total : ${totalScore}/15 - ${diagnosis.emoji} ${diagnosis.level}
+        </div>
+        
+        <h2>🌘 Informations du bien</h2>
+        <div class="info-grid">
+          <div class="info-item"><strong>Ville :</strong> ${formData.villeLogement}</div>
+          <div class="info-item"><strong>Loyer :</strong> ${formData.loyerActuel}</div>
+          <div class="info-item"><strong>Type :</strong> ${formData.typeLogement}</div>
+          <div class="info-item"><strong>Délai habituel :</strong> ${formData.delaiRelocation}</div>
+          <div class="info-item"><strong>Départ locataire :</strong> ${formData.dateDepartLocataire ? new Date(formData.dateDepartLocataire).toLocaleDateString('fr-FR') : 'Non renseigné'}</div>
+        </div>
+        
+        <h2>🔍 Détail de l'évaluation</h2>
+        <div class="criteria">Clarté du titre : ${formData.clarteTitre}/3</div>
+        <div class="criteria">Qualité des photos : ${formData.qualitePhotos}/3</div>
+        <div class="criteria">Description filtrante : ${formData.descriptionFiltrante}/3</div>
+        <div class="criteria">Niveau du loyer : ${formData.niveauLoyer}/3</div>
+        <div class="criteria">Profils candidats : ${formData.profilsCandidats}/3</div>
+        
+        <h2>🛠️ Recommandations</h2>
+        <div class="recommendation">
+          ${totalScore <= 8 ? '👉 Revoir votre annonce, vos photos, et vérifiez votre positionnement de loyer sur LocService.' :
+            totalScore <= 12 ? '👉 Optimisez 1 ou 2 points faibles : souvent les photos ou le descriptif suffisent à faire la différence.' :
+            '🎉 Vous êtes prêt à relouer rapidement ! Pensez à utiliser LocService pour filtrer les candidats qualifiés.'}
+        </div>
+        
+        <div class="footer">
+          <p>Ce diagnostic gratuit et anonyme est basé sur +6000 dossiers locatifs réels</p>
+          <p><strong>Testez LocService gratuitement :</strong> www.locservice.fr</p>
+        </div>
+      </body>
+      </html>
+    `
+    
+    // Ouvrir dans une nouvelle fenêtre pour impression/sauvegarde PDF
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      setTimeout(() => {
+        printWindow.print()
+      }, 250)
     }
+  }
 
-    try {
-      const response = await fetch('/api/save-diagnostic', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData),
-      })
-
-      if (response.ok) {
-        setSubmitSuccess(true)
-      } else {
-        alert('Erreur lors de la sauvegarde du diagnostic')
-      }
-    } catch (error) {
-      alert('Erreur lors de la sauvegarde du diagnostic')
-    } finally {
+  const handleSubmit = () => {
+    setIsSubmitting(true)
+    
+    // Générer le PDF
+    generatePDF()
+    
+    // Simuler un délai pour l'animation
+    setTimeout(() => {
+      setSubmitSuccess(true)
       setIsSubmitting(false)
-    }
+    }, 1000)
   }
 
   const diagnosis = getDiagnosticLevel()
@@ -101,9 +155,19 @@ const Home: NextPage = () => {
           <h1 className="text-3xl font-bold text-center mb-2 text-blue-900">
             📘 Diagnostic Express LocService
           </h1>
-          <p className="text-center text-gray-600 mb-8">
+          <p className="text-center text-gray-600 mb-4">
             Scoring Interactif basé sur +6 000 dossiers locatifs réels
           </p>
+
+          {/* Section contexte */}
+          <div className="bg-blue-50 rounded-lg p-4 mb-8 border border-blue-200">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">🧠 Pourquoi ce diagnostic ?</h3>
+            <p className="text-gray-700 text-sm">
+              En moyenne, un bien met 42 jours à être reloué. Plus de 50% des bailleurs n'optimisent ni leur annonce, 
+              ni leur loyer. Ce diagnostic gratuit et anonyme vous aide à identifier 
+              <strong> ce qui freine votre mise en location</strong>… et comment y remédier.
+            </p>
+          </div>
 
           {currentStep === 1 && (
             <div className="space-y-6">
@@ -253,9 +317,15 @@ const Home: NextPage = () => {
                   </p>
                 )}
                 {totalScore > 12 && (
-                  <p className="text-gray-700">
-                    🎉 Vous êtes prêt à relouer rapidement ! Pensez à utiliser LocService pour filtrer les candidats qualifiés.
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-gray-700">
+                      🎉 Vous êtes prêt à relouer rapidement ! 
+                    </p>
+                    <p className="text-gray-700">
+                      Pensez à utiliser LocService pour filtrer les candidats qualifiés sans passer par une agence.
+                      <span className="font-semibold text-green-700"> C'est gratuit, anonyme et sans engagement.</span>
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -277,7 +347,7 @@ const Home: NextPage = () => {
 
               {submitSuccess && (
                 <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mt-4">
-                  ✅ Diagnostic enregistré avec succès !
+                  ✅ Diagnostic généré avec succès ! Vous pouvez maintenant le télécharger ou l'imprimer.
                 </div>
               )}
             </div>

@@ -1,6 +1,10 @@
 # Diagnostic LocService
 
-Application web de diagnostic pour la mise en location de biens immobiliers, basée sur l'expérience de +6000 dossiers locatifs.
+Application web de diagnostic pour la mise en location de biens immobiliers, basée sur l'expérience de +6000 dossiers locatifs réels.
+
+## 🎯 Objectif
+
+En moyenne, un bien met 42 jours à être reloué. Plus de 50% des bailleurs n'optimisent ni leur annonce, ni leur loyer. Ce diagnostic gratuit et anonyme aide à identifier ce qui freine la mise en location et comment y remédier.
 
 ## 🚀 Installation
 
@@ -28,15 +32,10 @@ L'application sera accessible sur http://localhost:3000
 locservice-diagnostic/
 ├── pages/
 │   ├── api/
-│   │   ├── save-diagnostic.ts      # Sauvegarde des diagnostics
-│   │   ├── get-diagnostics.ts      # Récupération des diagnostics
-│   │   └── download-diagnostics.ts # Téléchargement CSV
-│   ├── admin/
-│   │   └── index.tsx              # Page d'administration
+│   │   └── health.ts              # Endpoint de santé
 │   ├── _app.tsx
 │   ├── _document.tsx
 │   └── index.tsx                  # Page principale du diagnostic
-├── diagnostics/                   # Dossier créé automatiquement pour stocker les données
 ├── package.json
 ├── tsconfig.json
 ├── tailwind.config.js
@@ -51,47 +50,50 @@ locservice-diagnostic/
    - Aller sur [vercel.com](https://vercel.com)
    - Cliquer sur "Import Project"
    - Sélectionner votre repository GitHub
-   - Laisser les paramètres par défaut
+   - Framework Preset : **Next.js**
+   - Laisser les autres paramètres par défaut
    - Cliquer sur "Deploy"
-
-3. Configuration importante pour Vercel
-   - Les fichiers seront stockés temporairement sur Vercel (les fonctions serverless ont un stockage éphémère)
-   - Pour une solution de stockage permanent, vous devrez intégrer une base de données ou un service de stockage cloud
-
-## 💾 Stockage des données
-
-### En développement local
-- Les diagnostics sont sauvegardés dans le dossier `/diagnostics`
-- Chaque diagnostic est enregistré en JSON individuel
-- Un fichier CSV consolidé `all-diagnostics.csv` est maintenu
-
-### En production (Vercel)
-⚠️ **Important** : Vercel utilise des fonctions serverless avec un système de fichiers éphémère. Les options recommandées pour la persistance des données sont :
-
-1. **Base de données** (Recommandé)
-   - PostgreSQL avec Vercel Postgres
-   - MongoDB Atlas
-   - Supabase
-
-2. **Stockage cloud**
-   - AWS S3
-   - Cloudinary
-   - Firebase Storage
 
 ## 📊 Fonctionnalités
 
-- **Diagnostic en 2 étapes** : Collecte d'informations sur la situation et évaluation de la mise en location
-- **Scoring interactif** : Système de notation sur 15 points avec recommandations personnalisées
-- **Sauvegarde automatique** : Enregistrement JSON et CSV des diagnostics
-- **Interface d'administration** : Visualisation et téléchargement des diagnostics sur `/admin`
-- **Design responsive** : Interface adaptée mobile et desktop
+- **Diagnostic en 2 étapes** : 
+  - Étape 1 : Collecte d'informations sur la situation actuelle
+  - Étape 2 : Évaluation de la mise en location (5 critères notés)
+  
+- **Scoring interactif** : 
+  - Système de notation sur 15 points
+  - Recommandations personnalisées selon le score
+  - Visualisation avec pastilles colorées (🔴🟡🟢)
 
-## 🔐 Sécurité
+- **Génération PDF** : 
+  - Téléchargement du diagnostic en PDF
+  - Récapitulatif complet avec recommandations
+  - Format professionnel prêt à imprimer
 
-Pour sécuriser la page d'administration en production, vous pouvez :
-- Ajouter une authentification (NextAuth.js)
-- Protéger l'endpoint avec une clé API
-- Restreindre l'accès par IP
+- **100% Gratuit et Anonyme** : 
+  - Aucune inscription requise
+  - Aucune donnée personnelle collectée
+  - Résultats immédiats
+
+## 🎨 Design
+
+- Interface moderne et responsive (Tailwind CSS)
+- Expérience utilisateur optimisée mobile et desktop
+- Animations fluides et feedback visuel
+- Accessibilité garantie
+
+## 📈 Scores et Recommandations
+
+- **🔴 5 à 8 points** : Risque élevé - L'annonce n'attire pas les bons profils
+- **🟡 9 à 12 points** : Moyennement optimisée - Quelques améliorations peuvent tout changer
+- **🟢 13 à 15 points** : Prête à louer rapidement !
+
+## 🔧 Technologies
+
+- Next.js 14
+- React 18
+- TypeScript
+- Tailwind CSS
 
 ## 📝 License
 
